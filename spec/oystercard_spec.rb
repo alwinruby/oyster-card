@@ -22,12 +22,20 @@ describe Oystercard do
     expect(subject).not_to be_in_journey
   end
 
-  it 'touch in changes the state of the journey' do
-    subject.touch_in
-    expect(subject).to be_in_journey
+  context '#touch in' do
+    it 'touch in changes the state of the journey' do
+      subject.top_up(1)
+      subject.touch_in
+      expect(subject).to be_in_journey
+    end
+    it 'raises an error when touch_in without balance' do
+      message = "Not enough balance"
+      expect{ subject.touch_in }.to raise_error message
+    end
   end
 
   it 'touch out returns the in journey as false' do
+    subject.top_up(1)
     subject.touch_in
     subject.touch_out
     expect(subject).to_not be_in_journey
