@@ -9,9 +9,10 @@ describe Oystercard do
     expect{subject.top_up(10)}.to change{subject.balance}.by(+10)
   end
 
-  it "should deduct the balance by deduction amount" do
-    expect{subject.deduct(10)}.to change{subject.balance}.by(-10)
-  end
+  #Test taken out during step 10 as it is no longer relevant*
+  # it "should deduct the balance by deduction amount" do
+  #   expect{subject.deduct(10)}.to change{subject.balance}.by(-10)
+  # end
 
   it 'should throw an excption if balance exceeds 90' do
     maximum = Oystercard::MAX_BALANCE
@@ -34,11 +35,19 @@ describe Oystercard do
     end
   end
 
-  it 'touch out returns the in journey as false' do
-    subject.top_up(1)
-    subject.touch_in
-    subject.touch_out
-    expect(subject).to_not be_in_journey
+  context '#touch out' do
+    it 'should deduct money on touch out' do
+      subject.top_up(5)
+      subject.touch_in
+      expect{ subject.touch_out }.to change { subject.balance}.by(-1)
+    end
+
+    it 'touch out returns the in journey as false' do
+      subject.top_up(1)
+      subject.touch_in
+      subject.touch_out
+      expect(subject).to_not be_in_journey
+    end
   end
 
 end
