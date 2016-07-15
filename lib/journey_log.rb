@@ -11,7 +11,6 @@ class JourneyLog
   end
 
   def start(station)
-    # @journey = journey_class.new(station)
     current_journey.start_journey(station)
   end
 
@@ -22,6 +21,10 @@ class JourneyLog
 
   def journeys
     @journeys.clone
+  end
+
+  def clear_journey
+    @journey = journey_class.new
   end
 
   private

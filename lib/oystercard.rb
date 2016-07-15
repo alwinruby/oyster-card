@@ -28,6 +28,7 @@ class Oystercard
   def touch_out(station)
     @log.finish(station)
     deduct(@log.journey.fare)
+    @log.clear_journey
   end
 
   def journey_history

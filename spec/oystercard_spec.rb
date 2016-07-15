@@ -1,6 +1,5 @@
 require "oystercard"
 
-
 describe Oystercard do
   subject(:card){ described_class.new }
   let(:station) { double(:station, :zone => 4) }
@@ -43,6 +42,13 @@ describe Oystercard do
       card.top_up(Journey::MINIMUM_FARE)
       card.touch_in(station)
       expect{ card.touch_in(station) }.to change{ card.balance }.by (-Journey::PENALTY_FARE)
+    end
+
+    it 'does not charge a penalty fare after a journey has been completed and user taps in again' do
+      card.top_up(Oystercard::LIMIT)
+      card.touch_in(station)
+      card.touch_out(station)
+      expect{ card.touch_in(station) }.to_not change{ card.balance }
     end
   end
 

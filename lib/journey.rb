@@ -32,7 +32,5 @@ class Journey
     else
       PENALTY_FARE
     end
-
   end
-
 end
