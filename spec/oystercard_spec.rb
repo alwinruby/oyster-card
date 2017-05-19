@@ -47,4 +47,23 @@ describe Oystercard do
     expect { subject.touch_out(exit_station) }.to change{ subject.balance }.by -1
   end
 
+  it "stores exit station" do
+  	subject.top_up(1)
+  	subject.touch_in(entry_station)
+  	subject.touch_out(exit_station)
+  	expect(subject.exit_station).to eq exit_station
+  end
+
+  it "records this journey in history" do
+  	subject.top_up(10)
+  	subject.touch_in(entry_station)
+  	subject.touch_out(exit_station)
+  	journey = {entry: entry_station, exit: exit_station}
+  	expect(subject.journey_history).to include journey
+	end
+
+  describe '#journey history' do
+    it {is_expected.to respond_to(:journey_history)}
+  end
+
 end

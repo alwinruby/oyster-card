@@ -1,6 +1,6 @@
 class Oystercard
 
-  attr_accessor :balance, :entry_station, :exit_station
+  attr_accessor :balance, :entry_station, :exit_station, :journey_history
 
   MAXIMUM_BALANCE = 90
   MINIMUM_BALANCE = 1
@@ -10,6 +10,7 @@ class Oystercard
     @balance = 0
     @entry_station = nil
     @exit_station = nil
+    @journey_history = []
   end
 
   def top_up(amount)
@@ -29,6 +30,7 @@ class Oystercard
   def touch_out(station)
     deduct(MINIMUM_CHARGE)
     self.exit_station = station
+    self.journey_history << { entry: self.entry_station, exit: self.exit_station }
     self.entry_station = nil
   end
 
