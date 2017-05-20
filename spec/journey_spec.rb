@@ -1,60 +1,51 @@
 require 'journey'
 
 describe Journey do
+  let(:station) { double('station', :zone => 2) }
+  subject(:trip) { described_class.new(station)}
+  let(:station2) { double('station2', :zone => 6) }
 
-  let(:entry_station) { double(:entry_station) }
-  let(:exit_station) { double(:exit_station) }
+  context "when touched in" do
 
-  it 'should be able to begin a journey' do
-    expect{ subject.begin(entry_station) }.to change{ subject.in_journey? }.to true
-  end
-
-  it 'should be able to finish a journey' do
-    expect{ subject.finish(exit_station) }.to change{ subject.in_journey? }.to false
-  end
-
-  it 'records the entry station' do
-    subject.begin(entry_station)
-    expect(subject.entry_station).to eq entry_station
-  end
-
-  it 'records the exit station' do
-    subject.finish(exit_station)
-    expect(subject.exit_station).to eq exit_station
-  end
-
-  describe '#complete?' do
-    it 'should be complete after beginning and finishing a journey' do
-      subject.begin(entry_station)
-      subject.finish(exit_station)
-      expect(subject.complete?).to eq true
+    it "accept the touch in station" do
+      expect(trip.journey[:entry]).to eq station
     end
 
-    it 'should not be complete if an exit station is missing' do
-      subject.begin(entry_station)
-      expect(subject.complete?).to eq false
-    end
-
-    it 'should not be complete if an entry station is missing' do
-      subject.finish(exit_station)
-      expect(subject.complete?).to eq false
-    end
-
-    it 'should not be complete when both stations are missing' do
-      expect(subject).to_not be_complete
+    it "knows a journey is incomplete" do
+      expect(trip.journey_complete?).to be false
     end
   end
 
-  describe '#fare' do
+  context "when touched out" do
 
-    it 'should return a penalty of £6 if journey not completed' do
-      allow(subject).to receive(:complete?).and_return(false)
-      expect(subject.fare).to eq Journey::PENALTY
+    before (:example) do
+      subject.end_journey(station)
     end
 
-    it 'should return correct fare if journey is completed' do
-      allow(subject).to receive(:complete?).and_return(true)
-      expect(subject.fare).to eq Journey::MIN_FARE
+    it "remembers the touch out station" do
+      expect(subject.journey[:exit]).to eq station
     end
+
+    it "knows when a journey is complete" do
+      expect(trip.journey_complete?).to be true
+    end
+
+    it "calculates a minimum fare when journey is complete" do
+      expect(trip.fare).to eq Journey::MINIMUM_FARE
+    end
+
+  end
+
+  context "calculates" do
+
+    it "a penalty fare when journey is incomplete" do
+      expect(trip.fare).to eq Journey::PENALTY_FARE
+    end
+
+    it "calculates the fare between two journey zones" do
+      trip.end_journey(station2)
+      expect(trip.fare).to eq 5
+    end
+
   end
 end

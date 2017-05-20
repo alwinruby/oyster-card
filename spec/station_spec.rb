@@ -1,15 +1,18 @@
 require 'station'
 
 describe Station do
+  subject(:station){described_class.new('bank', 1)}
 
-  subject { described_class.new(name: 'cereal', zone: 89) }
+  context "on creation" do
 
-  it 'should return a station name' do
-    expect(subject.name).to eq 'cereal'
-  end
+    it "has a name" do
+      expect(station.name).to eq 'bank'
+    end
 
-  it 'should return a station zone' do
-    expect(subject.zone).to eq 89
+    it "is in a zone" do
+      expect(station.zone).to eq 1
+    end
+
   end
 
 end

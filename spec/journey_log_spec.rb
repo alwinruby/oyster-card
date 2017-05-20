@@ -1,21 +1,53 @@
 require 'journey_log'
-require 'journey'
 
 describe JourneyLog do
-  subject { JourneyLog.new(Journey) }
-  let(:entry_station) { double(:entry_station) }
-  let(:exit_station) { double(:exit_station) }
+  let (:subject) { JourneyLog.new(Journey)}
+  let(:entry_station) {double (:station)}
+  let(:exit_station) {double (:station)}
+  let(:journey) { {entry: entry_station, exit: exit_station} }
 
-  it 'should start a journey with an entry_station' do
-    expect{ subject.start(entry_station) }.to change{ subject.in_journey? }.to true
+  context '#start' do
+
+    it 'adds the entry station to the journey' do
+      subject.start(entry_station)
+      expect(subject.journey.journey[:entry]).to eq entry_station
+    end
   end
 
-  it 'should end a journey with an exit_station' do
-    expect{ subject.finish(exit_station) }.to change{ subject.in_journey? }.to false
+  context '#finish' do
+
+    before do
+      subject.start(entry_station)
+      subject.finish(exit_station)
+    end
+
+    it 'adds the exit station to the journey' do
+      expect(subject.journey.journey[:exit]).to eq exit_station
+    end
+
+    it 'saves the journey when finished' do
+      expect(subject.journeys).to include journey
+    end
+
   end
 
-  it 'returns a list of journeys' do
-    expect(subject.journeys).to be_empty
+  context 'initialize' do
+
+    it 'saves the journey class paramater' do
+      expect(subject.journey_class).to eq Journey
+    end
+  end
+
+  context 'the clone' do
+
+    it 'stuff' do
+      subject.start(entry_station)
+      subject.finish(exit_station)
+      clone = subject.journeys
+      clone << entry_station
+      expect(subject.journeys).to_not eq clone
+
+    end
   end
 
 end

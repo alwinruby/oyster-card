@@ -1,29 +1,37 @@
+require 'journey'
+
 class JourneyLog
-  attr_reader :journeys
+
+  attr_reader :journey, :journey_class
 
   def initialize(journey_class)
     @journey_class = journey_class
-    @journey = @journey_class.new
     @journeys = []
-  end
-
-  def in_journey?
-    current_journey.in_journey?
+    @journey = journey_class.new
   end
 
   def start(station)
-    current_journey.begin(station)
+    current_journey.start_journey(station)
   end
 
   def finish(station)
-    @journeys << { "Entry Station:" => current_journey.entry_station, "Exit station:" => station }
-    current_journey.finish(station)
+    @journeys << { entry: @journey.journey[:entry], exit: station }
+    current_journey.end_journey(station)
+  end
+
+  def journeys
+    @journeys.clone
+  end
+
+  def clear_journey
+    @journey = journey_class.new
   end
 
   private
 
   def current_journey
-    @journey.complete? ? @journey = @journey_class.new : @journey
+    @journey = journey_class.new if @journey.journey_complete?
+    @journey
   end
 
 end
