@@ -1,7 +1,10 @@
 class Station
-  attr_reader :name, :zone
-  def initialize(name='Southwark',zone=1)
-    @name = name
-    @zone = zone
+
+  attr_reader :stations, :zone, :name
+
+  def initialize(args)
+    @stations = ['station1', 'station2', 'station3' ]
+    @name = args[:name]
+    @zone = args[:zone]
   end
 end

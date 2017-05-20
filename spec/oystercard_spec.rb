@@ -1,65 +1,62 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:entry_station) { double :station }
-  let(:exit_station) { double :station }
+  let(:entry_station) { double(:entry_station) }
+  let(:exit_station) { double(:exit_station) }
 
-  describe 'when new, the card' do
-    it 'journey history should be empty' do
+  it 'new oystercard has a balance of 0' do
+    expect(subject.balance).to eq 0
+  end
+
+  it "should increase the balance by top up amount" do
+    expect{subject.top_up(10)}.to change{subject.balance}.by(+10)
+  end
+
+  it 'should throw an excption if balance exceeds 90' do
+    maximum = Oystercard::MAX_BALANCE
+    expect{ subject.top_up(maximum+1) }.to raise_error 'Maximum amount exceeded'
+  end
+
+  it 'is not in a journey to start with' do
+    expect(subject).not_to be_in_journey
+  end
+
+  context '#touch_in' do
+
+    it 'touch in changes the state of the journey' do
+      subject.top_up(1)
+      subject.touch_in(entry_station)
+      expect(subject).to be_in_journey
+    end
+
+    it 'raises an error when insufficient balance' do
+      expect {subject.touch_in(entry_station)}.to raise_error "Sorry, insufficient funds"
+    end
+
+  end
+
+  context '#touch_out' do
+
+    it 'deducts money from balance when touching_out' do
+      subject.top_up(1)
+      subject.touch_in(entry_station)
+      expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-1)
+    end
+
+  end
+
+  context '#journeys' do
+    it 'it has ability to stores journeys' do
       expect(subject.journeys).to be_empty
     end
 
-    it 'balance should have default value of 0' do
-      expect(subject.balance).to eq(0)
+    it 'it has the ability to create a journey by touching in and out' do
+      subject.top_up(1)
+      subject.touch_in(entry_station)
+      subject.touch_out(exit_station)
+      journey = [{ "Entry Station:" => entry_station, "Exit station:" => exit_station }]
+      expect(subject.journeys).to eq journey
     end
   end
 
-  describe 'top_up' do
-    it 'should add money to balance' do
-      expect { subject.top_up(5) }.to change { subject.balance }.by 5
-    end
-  end
-
-  it 'should throw an error if balance would exceed the maximum limit' do
-    maximum_balance = Oystercard::MAXIMUM_BALANCE
-    max_exceeded = maximum_balance + 1
-    expect { subject.top_up(max_exceeded) }.to raise_error "Maximum balance exceeded"
-  end
-
-  context 'when touching in and out' do
-    describe 'it checks balance' do
-      it 'raises an error if it has less than the minimum balance' do
-        min_fare = 'Balance below minimum fare'
-        expect { subject.touch_in(entry_station) }.to raise_error min_fare
-      end
-    end
-
-    describe 'at touch_out' do
-      before(:each) do
-        subject.top_up(2)
-        subject.touch_in(entry_station)
-      end
-
-      it 'should deduct the minimum fare from the balance' do
-        minimum = subject.journey.fare
-        expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-minimum)
-      end
-
-      it 'should deduct the penalty fare from the balance' do
-        penalty = subject.journey.fare
-        expect { subject.touch_out }. to change { subject.balance }.by(-penalty)
-      end
-
-      before(:each) do
-        subject.touch_out(exit_station)
-      end
-
-      let(:journey) { { entry: entry_station, exit: exit_station } }
-      it 'stores a list of journeys' do
-        expect(subject.journeys).to include journey
-      end
-
-    end
-
-  end
 end
